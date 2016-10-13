@@ -2,6 +2,10 @@ webpack = require 'webpack' # webpackの標準のpluginを呼び出す
 HtmlWebpackPlugin = require 'html-webpack-plugin'
 BellOnBundlerErrorPlugin = require 'bell-on-bundler-error-plugin'
 
+ExtractTextPlugin = require 'extract-text-webpack-plugin'
+
+path = require 'path'
+
 
 # 省略する対象とする拡張子
 extensions =
@@ -22,10 +26,10 @@ JSPlugin =
   ReactDOM: 'react-dom'
 
 
-config =
+JSconfig =
   entry: entries
   output:
-    path: __dirname + '/public'
+    path: path.join(__dirname, 'public')
     filename: 'js/[name].js'
   resolve:
     extensions: extensions
@@ -60,21 +64,51 @@ config =
     ]
   plugins: [
 #    new webpack.optimize.UglifyJsPlugin() # jsを圧縮する 重たいっぽいので普段は要らない
+
+    new webpack.HotModuleReplacementPlugin()
+    new webpack.NoErrorsPlugin()
+    new BellOnBundlerErrorPlugin()
+    new webpack.ProvidePlugin JSPlugin
     new HtmlWebpackPlugin({
       title: 'Sample Page'
       template: 'source/pug/index.pug'
       filename: 'index.html'
+      inject: false
     })
     new HtmlWebpackPlugin({
       title: 'Sample Page'
       template: 'source/pug/test.pug'
       filename: 'test.html'
+      inject: false
     })
-    new webpack.HotModuleReplacementPlugin()
-    new webpack.NoErrorsPlugin()
-    new BellOnBundlerErrorPlugin()
-    new webpack.ProvidePlugin JSPlugin
   ]
   devtool: 'source-map'
 
-module.exports = config
+
+StyleConfig =
+  entry: './source/sass/main.js'
+  output:
+    path: path.join(__dirname, 'public/css')
+    filename: '[name].css'
+  module:
+    loaders: [
+      {
+        test: /\.css/
+        loader: "style!css"
+      }
+#      {
+#        test: /\.sass/
+#        loader: new ExtractTextPlugin.extract({
+#          fallbackLoader: "!style-loader"
+#          loader: "css-loader!sass-loader"
+#        })
+#      }
+    ]
+#  plugins:
+#    new ExtractTextPlugin "[name].css"
+
+
+module.exports = [
+  JSconfig
+  StyleConfig
+]
