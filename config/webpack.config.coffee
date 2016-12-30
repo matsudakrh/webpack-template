@@ -15,7 +15,7 @@ extensions =
 # コンパイルするjsファイル
 # プロパティ名がファイル名となる
 entries =
-  app: './source/app.js'
+  app: './source/js/app.js'
 
 
 # Webpackで読み込むjsファイル
@@ -24,13 +24,14 @@ JSPlugin =
   $: 'jquery'
   React: 'react'
   ReactDOM: 'react-dom'
+  commonJS: 'my_component' # my_componentのシンボリックリンクをnode_modules内に貼る
 
 
 JSconfig =
   entry: entries
   output:
     path: path.join(__dirname, 'public')
-    filename: 'js/[name].js'
+    filename: '[name].js'
   resolve:
     extensions: extensions
   devServer:
@@ -43,16 +44,20 @@ JSconfig =
         loaders: ['json', 'yaml'] # ymlファイルをyaml-loadderでjson化、その後json-loaderを通す
       }
       {
-        test: /\.jade$/
-        loader: 'jade'
-        query:
-          pretty: true
+        test: /\.json$/
+        loaders: ['json']
       }
       {
         test: /\.pug$/
-        loader: 'pug'
-        query:
-          pretty: true
+        loader: 'pug-html'
+      }
+      {
+        test: /\.css$/
+        loaders: ['style', 'css?modules']
+      }
+      {
+        test: /\.sass/
+        loaders: ['style', 'css?modules&localIdentName=[path]--[name]__[local]-[hash:base64:12]!autoprefixer!sass-loader']
       }
       {
         test: /\.js$/
@@ -70,45 +75,32 @@ JSconfig =
     new BellOnBundlerErrorPlugin()
     new webpack.ProvidePlugin JSPlugin
     new HtmlWebpackPlugin({
-      title: 'Sample Page'
       template: 'source/pug/index.pug'
       filename: 'index.html'
-      inject: false
-    })
-    new HtmlWebpackPlugin({
-      title: 'Sample Page'
-      template: 'source/pug/test.pug'
-      filename: 'test.html'
       inject: false
     })
   ]
   devtool: 'source-map'
 
 
-StyleConfig =
-  entry: './source/sass/main.js'
-  output:
-    path: path.join(__dirname, 'public/css')
-    filename: '[name].css'
-  module:
-    loaders: [
-      {
-        test: /\.css/
-        loader: "style!css"
-      }
+#StyleConfig =
+#  entry: './source/sass/main.js'
+#  output:
+#    path: path.join(__dirname, 'public/css')
+#    filename: '[name].css'
+#  module:
+#    loaders: [
 #      {
-#        test: /\.sass/
-#        loader: new ExtractTextPlugin.extract({
-#          fallbackLoader: "!style-loader"
-#          loader: "css-loader!sass-loader"
-#        })
+#        test: /\.css/
+#        loader: "style!css"
 #      }
-    ]
+
+#    ]
 #  plugins:
 #    new ExtractTextPlugin "[name].css"
 
 
 module.exports = [
   JSconfig
-  StyleConfig
+#  StyleConfig
 ]

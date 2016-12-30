@@ -1,3 +1,3 @@
 const gulp = require( 'gulp' );
 
-gulp.task( 'default', ['coffee']);
+gulp.task( 'default', ['config']);
